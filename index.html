@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>NIRT</title>
+    
+    <!-- Preload Critical Assets -->
+    <link rel="preload" href="assets/fonts/IranianSans.ttf" as="font" type="font/ttf" crossorigin>
+    
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+    <!-- Dynamic Background Orbs -->
+    <div class="ambient-bg">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
+        <div class="orb orb-4"></div>
+    </div>
+
+    <!-- Mobile Header (Hamburger) -->
+    <header class="mobile-header">
+        <div class="logo-small">NIRT</div>
+        <button class="hamburger" id="hamburgerBtn" aria-label="منو">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+
+    <!-- Vertical Navigation (Desktop) -->
+    <nav class="side-nav" id="sideNav">
+        <div class="nav-brand">NIRT</div>
+        <ul class="nav-list">
+            <li class="nav-item" data-page="home">
+                <button class="nav-btn" aria-label="صفحه اصلی">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                    </span>
+                    <span class="nav-text">خانه</span>
+                </button>
+            </li>
+            <li class="nav-item" data-page="programs">
+                <button class="nav-btn" aria-label="برنامه‌ها">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                            <line x1="8" y1="21" x2="16" y2="21"></line>
+                            <line x1="12" y1="17" x2="12" y2="21"></line>
+                        </svg>
+                    </span>
+                    <span class="nav-text">برنامه‌ها</span>
+                </button>
+            </li>
+            <li class="nav-item" data-page="ads">
+                <button class="nav-btn" aria-label="تبلیغات">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M12 20h9"></path>
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-text">تبلیغات</span>
+                </button>
+            </li>
+            <li class="nav-item" data-page="contact">
+                <button class="nav-btn" aria-label="تماس">
+                    <span class="nav-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                    </span>
+                    <span class="nav-text">تماس</span>
+                </button>
+            </li>
+        </ul>
+    </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div class="mobile-menu" id="mobileMenu">
+        <div class="mobile-menu-content">
+            <button class="close-menu" id="closeMenu" aria-label="بستن منو">×</button>
+            <div class="mobile-nav-items">
+                <button class="mobile-nav-btn" data-page="home">خانه</button>
+                <button class="mobile-nav-btn" data-page="programs">برنامه‌ها</button>
+                <button class="mobile-nav-btn" data-page="ads">تبلیغات</button>
+                <button class="mobile-nav-btn" data-page="contact">تماس با ما</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Container (Center-Focused) -->
+    <main class="main-container" id="mainContainer">
+        
+        <!-- Page: Home -->
+        <section class="page page-home active" id="pageHome">
+            <div class="home-content">
+                <div class="video-section">
+                    <h1 class="page-title" id="playerTitle">پخش زنده</h1>
+<div class="video-container glass-panel">
+  <video id="mainPlayer" poster="assets/images/live-thumb.jpg" preload="metadata">
+    <source src="assets/videos/live-stream.mp4" type="video/mp4">
+    مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+  </video>
+
+                        
+                        <!-- Custom Video Controls -->
+                        <div class="video-controls" id="videoControls">
+                            <button class="control-btn play-pause" id="playPauseBtn">
+                                <svg class="play-icon" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                <svg class="pause-icon" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg>
+                            </button>
+                            
+                            <div class="progress-container">
+                                <div class="progress-bar" id="progressBar">
+                                    <div class="progress-fill" id="progressFill"></div>
+                                    <div class="progress-handle" id="progressHandle"></div>
+                                </div>
+                                <span class="time-display" id="timeDisplay">00:00 / 00:00</span>
+                            </div>
+                            
+                            <div class="volume-container">
+                                <button class="control-btn volume-btn" id="volumeBtn">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                                        <path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
+                                    </svg>
+                                </button>
+                                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="100" value="80">
+                            </div>
+                            
+                            <button class="control-btn fullscreen" id="fullscreenBtn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                    <path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        
+                        <div class="video-overlay" id="videoOverlay">
+                            <div class="play-hint">
+                                <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="social-section">
+                    <h3 class="section-label">ما را دنبال کنید</h3>
+                    <div class="social-grid" id="socialGrid">
+                        <!-- Social icons injected by JS -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: Programs -->
+        <section class="page page-programs" id="pagePrograms">
+            <div class="programs-content">
+                <h1 class="page-title">برنامه‌های تلویزیونی</h1>
+                <div class="programs-grid" id="programsGrid">
+                    <!-- Program cards injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Page: Ads & Commerce -->
+        <section class="page page-ads" id="pageAds">
+            <div class="ads-content">
+                <div class="ads-info glass-panel">
+                    <h1 class="page-title" id="adsTitle">همکاری تبلیغاتی</h1>
+                    <p class="ads-description" id="adsDescription">متن پیش فرض...</p>
+                </div>
+                
+                <div class="ads-form-container glass-panel">
+                    <h2 class="form-title">درخواست تبلیغات</h2>
+<form class="ads-form" id="adsForm">
+                        <div class="form-row">
+                            <div class="form-group">
+<input type="text" id="companyName" name="companyName" required placeholder=" ">
+                                <label for="companyName">نام شرکت / برند</label>
+                            </div>
+                            <div class="form-group">
+<input type="text" id="contactPerson" name="contactPerson" required placeholder=" ">
+                                <label for="contactPerson">نام و نام خانوادگی</label>
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+<input type="tel" id="phoneNumber" name="phoneNumber" required placeholder=" ">
+                                <label for="phoneNumber">شماره تماس</label>
+                            </div>
+                            <div class="form-group">
+<input type="email" id="email" name="email" required placeholder=" ">
+                                <label for="email">پست الکترونیکی</label>
+                            </div>
+                        </div>
+                        <div class="form-group full">
+<select id="adType" name="adType" required>
+                                <option value="">نوع تبلیغات را انتخاب کنید</option>
+                                <option value="tv">تبلیغات تلویزیونی</option>
+                                <option value="radio">تبلیغات رادیویی</option>
+                                <option value="digital">تبلیغات دیجیتال</option>
+                                <option value="sponsor">اسپانسرشیپ برنامه</option>
+                            </select>
+                        </div>
+                        <div class="form-group full">
+<textarea id="message" name="message" rows="3" placeholder=" "></textarea>
+                            <label for="message">توضیحات بیشتر</label>
+                        </div>
+                        <button type="submit" class="submit-btn">
+                            <span>ارسال درخواست</span>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+<!-- Page: Contact -->
+<section class="page page-contact" id="pageContact">
+    <div class="contact-content">
+        <div class="contact-info glass-panel">
+            <h1 class="page-title">تماس با ما</h1>
+            <div class="contact-details" id="contactDetails">
+                <!-- Contact info injected by JS -->
+            </div>
+        </div>
+
+        <div class="contact-form-container glass-panel">
+            <h2 class="form-title">پیام به NIRT</h2>
+<form class="contact-form" id="contactForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <input type="text" id="fullName" name="fullName" required placeholder=" ">
+                        <label for="fullName">نام و نام خانوادگی</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="contactEmail" name="contactEmail" required placeholder=" ">
+                        <label for="contactEmail">ایمیل</label>
+                    </div>
+                </div>
+
+                <div class="form-group full">
+                    <input type="tel" id="contactPhone" name="contactPhone" required placeholder=" ">
+                    <label for="contactPhone">شماره تماس</label>
+                </div>
+
+                <div class="form-group full">
+                    <textarea id="message" name="message" required placeholder=" "></textarea>
+                    <label for="message">متن پیام شما</label>
+                </div>
+
+                <button type="submit" class="submit-btn">ارسال پیام</button>
+            </form>
+        </div>
+
+
+<div class="map-container glass-panel">
+  <div id="mapImage" style="height:350px;border-radius:12px;overflow:hidden;">
+    <img id="siteMapImg" src="" alt="موقعیت"
+         style="display:none;width:100%;height:100%;object-fit:cover;border-radius:12px;">
+  </div>
+</div>
+
+            </div>
+        </section>
+    </main>
+
+    <!-- Scripts -->
+    <script src="data/siteData.js"></script>
+    <script src="assets/js/app.js"></script>
+</body>
+</html>
