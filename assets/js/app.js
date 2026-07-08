@@ -1,13 +1,19 @@
 /**
  * NIRT Application Core
- * Architecture: Data-Driven Static Frontend
+ * Architecture: Data-Driven Static Frontend powered by Cloudflare D1 & Workers
  * No Framework - Vanilla JavaScript Only
  */
 
 class NIRTApp {
   constructor() {
     this.currentPage = 'home';
-    this.data = null;
+    this.data = {
+      player: null,
+      social: [],
+      programs: [],
+      contact: null,
+      ads: null
+    };
     this.playerState = {
       isPlaying: false,
       isMuted: false,
@@ -16,6 +22,9 @@ class NIRTApp {
       duration: 0
     };
     
+    // تعریف آدرس اصلی API ورکر شما
+    this.apiUrl = window.API_URL || "https://nirtdb.mansour-m.workers.dev";
+    
     this.init();
   }
 
@@ -23,16 +32,73 @@ class NIRTApp {
     this.cacheDOM();
     this.bindEvents();
     
-    if (window.siteDataPromise) {
-      const data = await window.siteDataPromise;
-      this.data = data;
-    } else {
-      this.data = siteData;
-    }
+    // دریافت اطلاعات زنده از دیتابیس D1 کلودفلر
+    await this.loadAllDataFromD1();
     
     this.renderData();
     this.initVideoPlayer();
     this.navigate('home');
+  }
+
+  // متد کمکی برای خواندن از جداول دیتابیس
+  async fetchTable(tableName) {
+    try {
+      const response = await fetch(`${this.apiUrl}?table=${tableName}`);
+      if (!response.ok) throw new Error(`خطا در دریافت جدول ${tableName}`);
+      return await response.json();
+    } catch (error) {
+      console.error(`خطا در ارتباط با دیتابیس برای جدول ${tableName}:`, error);
+      return null;
+    }
+  }
+
+  // دریافت تمام داده‌های دیتابیس به صورت همزمان
+  async loadAllDataFromD1() {
+    try {
+      // صدا زدن تمام جدول‌ها به صورت همزمان برای افزایش سرعت لود سایت
+      const [playerData, socialData, programsData, contactData, adsData] = await Promise.all([
+        this.fetchTable('player_settings'),
+        this.fetchTable('social_links'),
+        this.fetchTable('programs'),
+        this.fetchTable('contact_settings'),
+        this.fetchTable('ads_settings')
+      ]);
+
+      // فرآوری داده‌های جدول player_settings (گرفتن اولین رکورد)
+      if (playerData && playerData.length > 0) {
+        this.data.player = {
+          title: playerData[0].title || "پخش زنده",
+          thumbnail: playerData[0].thumbnail || "assets/images/live-thumb.jpg",
+          video: playerData[0].video || "assets/videos/live-stream.mp4"
+        };
+      }
+
+      // فرآوری داده‌های جدول social_links
+      if (socialData) {
+        this.data.social = socialData;
+      }
+
+      // فرآوری داده‌های جدول programs
+      if (programsData) {
+        this.data.programs = programsData;
+      }
+
+      // فرآوری داده‌های جدول contact_settings (گرفتن اولین رکورد)
+      if (contactData && contactData.length > 0) {
+        this.data.contact = contactData[0];
+      }
+
+      // فرآوری داده‌های جدول ads_settings (گرفتن اولین رکورد)
+      if (adsData && adsData.length > 0) {
+        this.data.ads = {
+          title: adsData[0].title || "همکاری تبلیغاتی",
+          description: adsData[0].description || "متن پیش فرض..."
+        };
+      }
+
+    } catch (error) {
+      console.error("خطا در لود اطلاعات اولیه دیتابیس:", error);
+    }
   }
 
   cacheDOM() {
@@ -58,9 +124,10 @@ class NIRTApp {
     this.contactDetails = document.getElementById('contactDetails');
     this.adsTitle = document.getElementById('adsTitle');
     this.adsDescription = document.getElementById('adsDescription');
-    this.playerTitle = document.getElementById('playerTitle');}
+    this.playerTitle = document.getElementById('playerTitle');
+  }
 
-   bindEvents() {
+  bindEvents() {
     this.navItems.forEach(item => {
       item.addEventListener('click', (e) => {
         const page = item.dataset.page;
@@ -71,22 +138,22 @@ class NIRTApp {
     this.mobileNavBtns.forEach(btn => {
       btn.addEventListener('click', (e) => {
         const page = btn.dataset.page;
-        this.navigate(page);this.closeMobileMenu();
+        this.navigate(page);
+        this.closeMobileMenu();
       });
     });
 
     this.hamburgerBtn?.addEventListener('click', () => this.openMobileMenu());
     this.closeMenuBtn?.addEventListener('click', () => this.closeMobileMenu());
 
-
     document.getElementById('adsForm')?.addEventListener('submit', (e) => {
       e.preventDefault();
-      this.handleFormSubmit(e.target, 'درخواست تبلیغاتی');
+      this.handleFormSubmit(e.target, 'ads_requests'); // ثبت در جدول درخواست‌های تبلیغات
     });
 
     document.getElementById('contactForm')?.addEventListener('submit', (e) => {
       e.preventDefault();
-      this.handleFormSubmit(e.target, 'پیام تماس');
+      this.handleFormSubmit(e.target, 'contact_messages'); // ثبت در جدول پیام‌های تماس
     });
   }
 
@@ -116,13 +183,15 @@ class NIRTApp {
   }
 
   renderData() {
+    // رندر بخش پخش زنده
     if (this.data.player && this.playerTitle) {
       this.playerTitle.textContent = this.data.player.title;
       this.video.poster = this.data.player.thumbnail;
       this.video.src = this.data.player.video;
     }
 
-     if (this.data.social && this.socialGrid) {
+    // رندر بخش شبکه‌های اجتماعی
+    if (this.data.social && this.socialGrid) {
       this.socialGrid.innerHTML = this.data.social.map(social => `
         <a href="${social.url}" target="_blank" class="social-btn" aria-label="${social.platform}">
           ${this.getSocialIcon(social.platform)}
@@ -130,52 +199,55 @@ class NIRTApp {
       `).join('');
     }
 
-
+    // رندر لیست برنامه‌ها
     if (this.data.programs && this.programsGrid) {
       this.programsGrid.innerHTML = this.data.programs.map(program => `
         <div class="program-card">
           <img src="${program.image}" alt="${program.title}" class="program-image">
           <div class="program-info">
             <h3 class="program-title">${program.title}</h3>
-            <p class="program-desc">${program.description}</p></div>
+            <p class="program-desc">${program.description}</p>
+          </div>
         </div>
       `).join('');
     }
-// قبلاً اینجا lat/lng بود، حالا فقط map_image
-const { phone, email, address, map_image } = this.data.contact;
 
-// نمایش اطلاعات تماس
-if (this.contactDetails) {
-  this.contactDetails.innerHTML = `
-    <div class="contact-item">
-      <span class="label">تلفن:</span>
-      <span class="value">${phone || '-'}</span>
-    </div>
-    <div class="contact-item">
-      <span class="label">ایمیل:</span>
-      <span class="value">${email || '-'}</span>
-    </div>
-    <div class="contact-item">
-      <span class="label">آدرس:</span>
-      <span class="value">${address || '-'}</span>
-    </div>
-  `;
-}
+    // نمایش اطلاعات تماس
+    if (this.data.contact) {
+      const { phone, email, address, map_image } = this.data.contact;
+      
+      if (this.contactDetails) {
+        this.contactDetails.innerHTML = `
+          <div class="contact-item">
+            <span class="label">تلفن:</span>
+            <span class="value">${phone || '-'}</span>
+          </div>
+          <div class="contact-item">
+            <span class="label">ایمیل:</span>
+            <span class="value">${email || '-'}</span>
+          </div>
+          <div class="contact-item">
+            <span class="label">آدرس:</span>
+            <span class="value">${address || '-'}</span>
+          </div>
+        `;
+      }
 
-// نمایش نقشه — فقط تصویر، بدون Google Maps
-const mapFrame = document.getElementById('siteMapFrame');
-const mapImg   = document.getElementById('siteMapImg');
+      // نمایش نقشه — فقط تصویر، بدون Google Maps
+      const mapFrame = document.getElementById('siteMapFrame');
+      const mapImg = document.getElementById('siteMapImg');
 
-if (mapImg && map_image) {
-  if (mapFrame) mapFrame.style.display = 'none';
-  mapImg.src = `uploads/${map_image}`;
-  mapImg.style.display = 'block';
-} else {
-  if (mapFrame) mapFrame.style.display = 'none';
-  if (mapImg)   mapImg.style.display   = 'none';
-}
+      if (mapImg && map_image) {
+        if (mapFrame) mapFrame.style.display = 'none';
+        mapImg.src = `uploads/${map_image}`;
+        mapImg.style.display = 'block';
+      } else {
+        if (mapFrame) mapFrame.style.display = 'none';
+        if (mapImg) mapImg.style.display = 'none';
+      }
+    }
 
-
+    // رندر متن بخش تبلیغات
     if (this.data.ads && this.adsTitle && this.adsDescription) {
       this.adsTitle.textContent = this.data.ads.title;
       this.adsDescription.textContent = this.data.ads.description;
@@ -191,7 +263,6 @@ if (mapImg && map_image) {
     };
     return icons[platform] || icons.Telegram;
   }
-
 
   initVideoPlayer() {
     if (!this.video) return;
@@ -216,7 +287,9 @@ if (mapImg && map_image) {
       this.playerState.volume = e.target.value / 100;
     });
 
-    this.volumeSlider.value = 80;
+    if (this.volumeSlider) {
+      this.volumeSlider.value = 80;
+    }
 
     this.fullscreenBtn?.addEventListener('click', () => {
       if (!document.fullscreenElement) {
@@ -260,52 +333,55 @@ if (mapImg && map_image) {
     return `${m}:${s}`;
   }
 
-async handleFormSubmit(form, contextLabel) {
-  const submitBtn = form.querySelector('button[type="submit"]');
-  const span = submitBtn.querySelector('span') || submitBtn;
-  const originalText = span.textContent;
+  // مدیریت ارسال مستقیم فرم‌ها به جدول‌های دیتابیس D1 کلودفلر
+  async handleFormSubmit(form, tableName) {
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const span = submitBtn.querySelector('span') || submitBtn;
+    const originalText = span.textContent;
 
-  submitBtn.disabled = true;
-  span.textContent = 'در حال ارسال...';
+    submitBtn.disabled = true;
+    span.textContent = 'در حال ارسال...';
 
-  const payload = Object.fromEntries(new FormData(form));
+    const payload = Object.fromEntries(new FormData(form));
 
-const endpoint = form.id === 'adsForm' ? 'api/ads.php' : 'api/contact.php';
+    try {
+      // ارسال داده به آدرس ورکر کلودفلر به جای اسکریپت PHP قبلی
+      const response = await fetch(this.apiUrl, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json' 
+        },
+        body: JSON.stringify({
+          table: tableName,
+          data: payload
+        })
+      });
 
-  try {
+      const resData = await response.json();
 
-const response = await fetch(endpoint, {
-  method: 'POST',
-  headers: { 'Content-Type': 'application/json' },
-  body: JSON.stringify(payload)
-});
+      if (!response.ok || resData.error) {
+        throw new Error(resData.error || 'خطا در ثبت اطلاعات در دیتابیس');
+      }
 
-    const data = await response.json();
+      submitBtn.classList.add('btn-success');
+      span.textContent = '✓ ارسال شد';
+      this.showToast(`اطلاعات شما با موفقیت ثبت شد`, 'success');
+      form.reset();
 
-    if (!response.ok || !data.success) {
-      throw new Error(data.message || 'خطا در ارسال فرم');
+    } catch (error) {
+      console.error("خطای ارسال فرم:", error);
+      submitBtn.classList.add('btn-error');
+      span.textContent = '✗ خطا در ارسال';
+      this.showToast(error.message || 'خطا در برقراری ارتباط با دیتابیس', 'error');
+
+    } finally {
+      setTimeout(() => {
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('btn-success', 'btn-error');
+        span.textContent = originalText;
+      }, 3000);
     }
-
-    submitBtn.classList.add('btn-success');
-    span.textContent = '✓ ارسال شد';
-    this.showToast(`${contextLabel} با موفقیت ارسال شد`, 'success');
-    form.reset();
-
-  } catch (error) {
-    console.error(error);
-    submitBtn.classList.add('btn-error');
-    span.textContent = '✗ خطا در ارسال';
-    this.showToast(error.message || 'خطا در ارسال فرم', 'error');
-
-  } finally {
-    setTimeout(() => {
-      submitBtn.disabled = false;
-      submitBtn.classList.remove('btn-success', 'btn-error');
-      span.textContent = originalText;
-    }, 3000);
   }
-}
-
 
   showToast(message, type = 'info') {
     let toast = document.querySelector('.toast');
